@@ -1,0 +1,16 @@
+{
+  "name": "investment-dashboard",
+  "version": "1.0.0",
+  "description": "AI Investment Agent Dashboard",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "recharts": "latest"
+  }
+}

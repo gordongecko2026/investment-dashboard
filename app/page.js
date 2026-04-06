@@ -63,6 +63,7 @@ export default function Dashboard() {
     { id: 'conservative', label: '🟢 Conservative' },
     { id: 'aggressive',   label: '🔥 Aggressive' },
     { id: 'solomon',      label: '👁 Solomon' },
+    { id: 'coveredcall', label: '💹 Covered Calls' },
     { id: 'networth',     label: '🏦 Net Worth' },
     { id: 'income',       label: '💰 Income Goal' },
   ]
@@ -350,6 +351,118 @@ export default function Dashboard() {
               </div>
             )
           })}
+        </>
+      )}
+
+      {tab === 'coveredcall' && (
+        <>
+          {(() => {
+            const cc = data.coveredCalls
+            const totalDeployed = cc.positions.reduce((a,p) => a + p.totalCost, 0)
+            const estMonthlyPremium = cc.positions.reduce((a,p) => a + p.estPremium * p.shares, 0)
+            const estAnnualPremium = estMonthlyPremium * 12
+            const avgAnnualized = cc.positions.reduce((a,p) => a + p.annualizedReturn, 0) / cc.positions.length
+            return (
+              <div style={styles.grid4}>
+                {[
+                  { label: 'Capital Allocated',    value: `$${cc.totalCapital.toLocaleString()}`, sub: 'Covered call budget',        color: '#f59e0b' },
+                  { label: 'Est. Monthly Premium', value: `$${estMonthlyPremium.toFixed(0)}`,      sub: 'Per month from all calls',   color: '#00d4aa' },
+                  { label: 'Est. Annual Premium',  value: `$${estAnnualPremium.toFixed(0)}`,       sub: 'Premium income only',        color: '#00a8ff' },
+                  { label: 'Avg Annualized Return',value: `${avgAnnualized.toFixed(1)}%`,          sub: 'Premium + dividend combined', color: '#a855f7' },
+                ].map(m => (
+                  <div key={m.label} style={{ ...styles.card, borderTop: `3px solid ${m.color}` }}>
+                    <div style={styles.cardTitle}>{m.label}</div>
+                    <div style={{ ...styles.bigNumber, color: m.color }}>{m.value}</div>
+                    <div style={styles.subtext}>{m.sub}</div>
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
+
+          <div style={styles.card}>
+            <div style={styles.cardTitle}>📚 How Covered Calls Work</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
+              {data.coveredCalls.rules.map((r,i) => (
+                <div key={i} style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 6, padding: '6px 12px', fontSize: 13, color: '#fcd34d' }}>
+                  {i+1}. {r}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div style={styles.card}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <div style={styles.cardTitle}>Covered Call Candidates</div>
+              <div style={{ fontSize: 12, color: '#8892b0' }}>Sorted by annualized return</div>
+            </div>
+            <table style={styles.table}>
+              <thead>
+                <tr>{['Ticker','Rating','100sh Cost','Yield','Strike','Expiry','Est Premium','Premium %','Annualized','Status','Notes'].map(h=><th key={h} style={styles.th}>{h}</th>)}</tr>
+              </thead>
+              <tbody>
+                {[...data.coveredCalls.positions].sort((a,b) => b.annualizedReturn - a.annualizedReturn).map(p => {
+                  const livePrice = livePrices[p.ticker] || p.stockPrice
+                  const liveCost = livePrice * 100
+                  const statusColor = p.status === 'READY' ? '#00d4aa' : p.status === 'ACTIVE' ? '#00a8ff' : '#ffa502'
+                  const ratingColor = p.rating === 'A' ? '#00d4aa' : p.rating === 'B+' ? '#00a8ff' : '#ffa502'
+                  return (
+                    <tr key={p.ticker}>
+                      <td style={{ ...styles.td, fontWeight: 800, color: '#f59e0b', fontSize: 15 }}>{p.ticker}</td>
+                      <td style={styles.td}><span style={{ background: ratingColor+'22', color: ratingColor, padding: '2px 8px', borderRadius: 4, fontWeight: 700 }}>{p.rating}</span></td>
+                      <td style={styles.td}>${liveCost.toLocaleString(undefined,{maximumFractionDigits:0})}</td>
+                      <td style={{ ...styles.td, color: '#00d4aa' }}>{p.yield}%</td>
+                      <td style={{ ...styles.td, color: '#fff', fontWeight: 600 }}>${p.suggestedStrike}</td>
+                      <td style={{ ...styles.td, color: '#8892b0' }}>{p.suggestedExpiry}</td>
+                      <td style={{ ...styles.td, color: '#00d4aa', fontWeight: 700 }}>${p.estPremium}/sh (${(p.estPremium*100).toFixed(0)}/contract)</td>
+                      <td style={styles.td}>{p.estPremiumPct}%</td>
+                      <td style={{ ...styles.td, color: '#a855f7', fontWeight: 800 }}>{p.annualizedReturn}%</td>
+                      <td style={styles.td}><span style={{ background: statusColor+'22', color: statusColor, padding: '3px 10px', borderRadius: 6, fontWeight: 700, fontSize: 12 }}>{p.status}</span></td>
+                      <td style={{ ...styles.td, color: '#8892b0', fontSize: 12, maxWidth: 200 }}>{p.note}</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          <div style={styles.grid2}>
+            <div style={styles.card}>
+              <div style={styles.cardTitle}>💡 Recommended First Trades (with $9,500)</div>
+              {[
+                { trade: 'Buy 100 MO @ $65.76 = $6,576', action: 'Sell 1 MO Apr call @ $70 strike', premium: '$120/contract', monthly: '$120', note: 'Highest annualized return. Stable dividend stock.' },
+                { trade: 'Buy 100 PFE @ $28.32 = $2,832', action: 'Sell 1 PFE Apr call @ $30 strike', premium: '$55/contract', monthly: '$55', note: 'Budget friendly. High dividend + premium combo.' },
+              ].map((t,i) => (
+                <div key={i} style={{ padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                  <div style={{ color: '#f59e0b', fontWeight: 700, marginBottom: 4 }}>{t.trade}</div>
+                  <div style={{ color: '#00d4aa', fontSize: 13, marginBottom: 4 }}>→ {t.action}</div>
+                  <div style={{ color: '#a855f7', fontSize: 13, marginBottom: 4 }}>Premium: {t.premium} | Monthly income: {t.monthly}</div>
+                  <div style={{ color: '#8892b0', fontSize: 12 }}>{t.note}</div>
+                </div>
+              ))}
+              <div style={{ marginTop: 12, padding: 12, background: 'rgba(0,212,170,0.08)', borderRadius: 8, border: '1px solid rgba(0,212,170,0.2)' }}>
+                <div style={{ color: '#00d4aa', fontWeight: 700 }}>Combined: $9,408 deployed | ~$175/month premium + $52/month dividends = $227/month</div>
+                <div style={{ color: '#8892b0', fontSize: 12, marginTop: 4 }}>Annualized: ~$2,724/year on $9,408 = 28.9% return</div>
+              </div>
+            </div>
+
+            <div style={styles.card}>
+              <div style={styles.cardTitle}>⚠️ Covered Call Rules to Remember</div>
+              {[
+                { rule: 'Only sell calls on stocks you\'d be happy to sell', detail: 'If called away, you must sell at the strike price' },
+                { rule: 'Strike 5-10% above current price', detail: 'Balances premium income vs keeping the stock' },
+                { rule: '2-4 weeks to expiry is the sweet spot', detail: 'Theta decay accelerates in final 2 weeks' },
+                { rule: 'Close at 50% profit', detail: 'Buy back the call when it\'s worth 50% of what you sold it for' },
+                { rule: 'Never sell calls during earnings week', detail: 'IV spike can make premiums too expensive to close' },
+                { rule: 'Dividend dates matter', detail: 'Calls can be exercised early before ex-dividend date' },
+              ].map((r,i) => (
+                <div key={i} style={{ padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                  <div style={{ color: '#f59e0b', fontWeight: 600, fontSize: 13 }}>✓ {r.rule}</div>
+                  <div style={{ color: '#8892b0', fontSize: 12, marginTop: 2 }}>{r.detail}</div>
+                </div>
+              ))}
+            </div>
+          </div>
         </>
       )}
 

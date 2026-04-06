@@ -153,44 +153,53 @@ export default function Dashboard() {
       {/* CONSERVATIVE */}
       {tab === 'conservative' && (
         <>
-          <div style={styles.grid4}>
-            <div style={styles.card}>
-              <div style={styles.cardTitle}>Capital</div>
-              <div style={styles.bigNumber}>${conservative.capital.toLocaleString()}</div>
-            </div>
-            <div style={styles.card}>
-              <div style={styles.cardTitle}>Avg Yield</div>
-              <div style={styles.bigNumber}>{(conservative.holdings.reduce((a,h)=>a+h.yield,0)/conservative.holdings.length).toFixed(2)}%</div>
-            </div>
-            <div style={styles.card}>
-              <div style={styles.cardTitle}>Est. Annual Income</div>
-              <div style={styles.bigNumber}>${Math.round(conservative.capital * 0.045).toLocaleString()}</div>
-            </div>
-            <div style={styles.card}>
-              <div style={styles.cardTitle}>Positions</div>
-              <div style={styles.bigNumber}>{conservative.holdings.length}</div>
-            </div>
-          </div>
+          {(() => {
+            const totalMktVal = conservative.holdings.reduce((a,h) => a + h.marketValue, 0)
+            const totalGain   = conservative.holdings.reduce((a,h) => a + h.gainLoss, 0)
+            const totalCostB  = conservative.holdings.reduce((a,h) => a + h.costBasis * h.shares, 0)
+            const cashBalance = 11979
+            const estAnnualIncome = conservative.holdings.reduce((a,h) => a + (h.marketValue * h.yield / 100), 0)
+            return (
+              <div style={styles.grid4}>
+                {[
+                  { label: 'Positions Value',    value: `$${totalMktVal.toLocaleString(undefined,{maximumFractionDigits:0})}`, sub: `As of ${conservative.asOf}`, color: '#00d4aa' },
+                  { label: 'Total Gain/Loss',    value: `$${totalGain.toFixed(2)}`, sub: `${((totalGain/totalCostB)*100).toFixed(2)}% overall`, color: totalGain >= 0 ? '#00d4aa' : '#ff4757' },
+                  { label: 'Est. Annual Income', value: `$${estAnnualIncome.toFixed(0)}`, sub: `$${(estAnnualIncome/12).toFixed(0)}/month`, color: '#00a8ff' },
+                  { label: 'Positions',          value: conservative.holdings.filter(h=>h.shares>0).length, sub: 'Active holdings', color: '#a855f7' },
+                ].map(m => (
+                  <div key={m.label} style={{ ...styles.card, borderTop: `3px solid ${m.color}` }}>
+                    <div style={styles.cardTitle}>{m.label}</div>
+                    <div style={{ ...styles.bigNumber, color: m.color }}>{m.value}</div>
+                    <div style={styles.subtext}>{m.sub}</div>
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
 
           <div style={styles.card}>
-            <div style={styles.cardTitle}>Holdings & Signals</div>
+            <div style={styles.cardTitle}>Holdings — Live Positions</div>
             <table style={styles.table}>
               <thead>
-                <tr>{['Ticker','Price','Yield','Payout','Signal','Confidence'].map(h=><th key={h} style={styles.th}>{h}</th>)}</tr>
+                <tr>{['Ticker','Shares','Cost Basis','Mkt Value','Gain $','Gain %','% of Acct','Yield','Signal','Confidence'].map(h=><th key={h} style={styles.th}>{h}</th>)}</tr>
               </thead>
               <tbody>
-                {conservative.holdings.map(h => (
+                {conservative.holdings.filter(h=>h.shares>0).sort((a,b)=>b.marketValue-a.marketValue).map(h => (
                   <tr key={h.ticker}>
                     <td style={{ ...styles.td, fontWeight: 700, color: '#00d4aa' }}>{h.ticker}</td>
-                    <td style={styles.td}>${h.price}</td>
+                    <td style={styles.td}>{h.shares}</td>
+                    <td style={styles.td}>${h.costBasis.toFixed(2)}</td>
+                    <td style={{ ...styles.td, fontWeight: 600 }}>${h.marketValue.toLocaleString(undefined,{maximumFractionDigits:2})}</td>
+                    <td style={{ ...styles.td, color: h.gainLoss >= 0 ? '#00d4aa' : '#ff4757', fontWeight: 700 }}>{h.gainLoss >= 0 ? '+' : ''}${h.gainLoss.toFixed(2)}</td>
+                    <td style={{ ...styles.td, color: h.gainPct >= 0 ? '#00d4aa' : '#ff4757' }}>{h.gainPct >= 0 ? '+' : ''}{h.gainPct.toFixed(2)}%</td>
+                    <td style={styles.td}>{h.pctOfAcct}%</td>
                     <td style={{ ...styles.td, color: h.yield >= 5 ? '#00d4aa' : h.yield >= 3.5 ? '#52e3c2' : '#fff' }}>{h.yield}%</td>
-                    <td style={{ ...styles.td, color: h.payout >= 95 ? '#ff4757' : h.payout >= 85 ? '#ffa502' : '#fff' }}>{h.payout}%</td>
                     <td style={styles.td}>
                       <span style={{ background: signalColor(h.signal)+'22', color: signalColor(h.signal), padding: '3px 10px', borderRadius: 6, fontWeight: 700, fontSize: 12 }}>{h.signal}</span>
                     </td>
                     <td style={styles.td}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <div style={{ width: 80, height: 6, background: 'rgba(255,255,255,0.1)', borderRadius: 3 }}>
+                        <div style={{ width: 60, height: 6, background: 'rgba(255,255,255,0.1)', borderRadius: 3 }}>
                           <div style={{ width: `${h.confidence*10}%`, height: '100%', background: h.confidence >= 7 ? '#00d4aa' : h.confidence >= 5 ? '#ffa502' : '#ff4757', borderRadius: 3 }} />
                         </div>
                         <span style={{ fontSize: 12, color: '#8892b0' }}>{h.confidence}/10</span>
@@ -221,49 +230,55 @@ export default function Dashboard() {
       {/* AGGRESSIVE */}
       {tab === 'aggressive' && (
         <>
-          <div style={styles.grid4}>
-            <div style={styles.card}>
-              <div style={styles.cardTitle}>Capital Deployed</div>
-              <div style={styles.bigNumber}>${aggressive.capital.toLocaleString()}</div>
-            </div>
-            <div style={styles.card}>
-              <div style={styles.cardTitle}>Recovery Goal</div>
-              <div style={styles.bigNumber}>$30,012</div>
-              <div style={styles.subtext}>EETH loss to recover</div>
-            </div>
-            <div style={styles.card}>
-              <div style={styles.cardTitle}>Positions Watching</div>
-              <div style={styles.bigNumber}>{aggressive.holdings.filter(h=>h.status==='WATCHING').length}</div>
-            </div>
-            <div style={styles.card}>
-              <div style={styles.cardTitle}>At/In Entry Zones</div>
-              <div style={{ ...styles.bigNumber, color: '#ff6b35' }}>{aggressive.holdings.filter(h=>h.status==='AT ZONE'||h.status==='IN ZONE').length}</div>
-              <div style={styles.subtext}>Ready to buy</div>
-            </div>
-          </div>
+          {(() => {
+            const active   = aggressive.holdings.filter(h => h.status === 'ACTIVE')
+            const watching = aggressive.holdings.filter(h => h.status === 'WATCHING')
+            const totalMkt = active.reduce((a,h) => a + h.marketValue, 0)
+            const totalGL  = active.reduce((a,h) => a + h.gainLoss, 0)
+            const totalCostB = active.reduce((a,h) => a + h.costBasis * h.shares, 0)
+            return (
+              <div style={styles.grid4}>
+                {[
+                  { label: 'Active Positions Value', value: `$${totalMkt.toLocaleString(undefined,{maximumFractionDigits:0})}`, sub: `${active.length} active trades`, color: '#ff6b35' },
+                  { label: 'Total Gain/Loss',        value: `${totalGL >= 0 ? '+' : ''}$${totalGL.toFixed(2)}`, sub: `${totalCostB > 0 ? ((totalGL/totalCostB)*100).toFixed(2) : 0}% since entry`, color: totalGL >= 0 ? '#00d4aa' : '#ff4757' },
+                  { label: 'Recovery Goal',           value: '$30,012', sub: 'EETH loss to recover', color: '#ffa502' },
+                  { label: 'Watching',                value: watching.length, sub: 'Waiting for entry', color: '#8892b0' },
+                ].map(m => (
+                  <div key={m.label} style={{ ...styles.card, borderTop: `3px solid ${m.color}` }}>
+                    <div style={styles.cardTitle}>{m.label}</div>
+                    <div style={{ ...styles.bigNumber, color: m.color }}>{m.value}</div>
+                    <div style={styles.subtext}>{m.sub}</div>
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
 
           <div style={styles.card}>
-            <div style={styles.cardTitle}>Swing Trade Setups</div>
+            <div style={styles.cardTitle}>Swing Trade Positions — Live</div>
             <table style={styles.table}>
               <thead>
-                <tr>{['Ticker','Current','Entry Zone','Target','Stop','Position','Status','Upside'].map(h=><th key={h} style={styles.th}>{h}</th>)}</tr>
+                <tr>{['Ticker','Shares','Cost','Mkt Value','Day G/L','Total G/L','Target','Stop','Status','To Target'].map(h=><th key={h} style={styles.th}>{h}</th>)}</tr>
               </thead>
               <tbody>
                 {aggressive.holdings.map(h => {
-                  const upside = ((h.target - h.price) / h.price * 100).toFixed(1)
-                  const inZone = h.price >= h.entryLow && h.price <= h.entryHigh
+                  const livePrice  = livePrices[h.ticker] || h.costBasis
+                  const upside     = h.target ? ((h.target - (livePrices[h.ticker] || h.costBasis)) / (livePrices[h.ticker] || h.costBasis) * 100).toFixed(1) : '-'
+                  const isActive   = h.status === 'ACTIVE'
                   return (
                     <tr key={h.ticker}>
                       <td style={{ ...styles.td, fontWeight: 700, color: '#ff6b35' }}>{h.ticker}</td>
-                      <td style={styles.td}>${h.price}</td>
-                      <td style={{ ...styles.td, color: '#8892b0' }}>${h.entryLow}–${h.entryHigh}</td>
+                      <td style={styles.td}>{h.shares || '-'}</td>
+                      <td style={styles.td}>{h.costBasis ? `$${h.costBasis.toFixed(2)}` : '-'}</td>
+                      <td style={{ ...styles.td, fontWeight: 600 }}>{isActive ? `$${h.marketValue.toLocaleString(undefined,{maximumFractionDigits:0})}` : '-'}</td>
+                      <td style={{ ...styles.td, color: h.gainLoss >= 0 ? '#00d4aa' : '#ff4757' }}>{isActive ? `${h.gainLoss >= 0 ? '+' : ''}$${h.gainLoss.toFixed(2)}` : '-'}</td>
+                      <td style={{ ...styles.td, color: h.gainLoss >= 0 ? '#00d4aa' : '#ff4757', fontWeight: 700 }}>{isActive ? `${h.gainLoss >= 0 ? '+' : ''}${h.gainPct.toFixed(2)}%` : '-'}</td>
                       <td style={{ ...styles.td, color: '#00d4aa' }}>${h.target}</td>
                       <td style={{ ...styles.td, color: '#ff4757' }}>${h.stop}</td>
-                      <td style={styles.td}>${h.position.toLocaleString()}</td>
                       <td style={styles.td}>
                         <span style={{ background: signalColor(h.status)+'22', color: signalColor(h.status), padding: '3px 10px', borderRadius: 6, fontWeight: 700, fontSize: 12 }}>{h.status}</span>
                       </td>
-                      <td style={{ ...styles.td, color: upside > 0 ? '#00d4aa' : '#ff4757', fontWeight: 700 }}>{upside > 0 ? '+' : ''}{upside}%</td>
+                      <td style={{ ...styles.td, color: parseFloat(upside) > 0 ? '#00d4aa' : '#ff4757', fontWeight: 700 }}>{upside !== '-' ? `${upside > 0 ? '+' : ''}${upside}%` : '-'}</td>
                     </tr>
                   )
                 })}

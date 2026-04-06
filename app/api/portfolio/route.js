@@ -33,7 +33,7 @@ export async function GET() {
         ]},
         { category: 'Retirement Plans', items: [
           { name: 'Andria HD Retirement Account (IRA)', value: 185000 },
-          { name: 'Andria Merrill Lynch Account', value: 85000 },
+          { name: 'Andria Merrill Lynch Account', value: 86870 },
           { name: 'Citadel Dev - FRGXX', value: 316242 },
         ]},
         { category: 'Real Estate', items: [

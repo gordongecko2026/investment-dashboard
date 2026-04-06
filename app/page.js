@@ -357,26 +357,51 @@ export default function Dashboard() {
         <>
           {(() => {
             const nw = data.netWorth
-            const totalAssets = nw.assets.reduce((a,cat) => a + cat.items.reduce((b,item) => b + item.value, 0), 0)
+
+            // Calculate live Solomon total from all RJ accounts
+            const solomonLive = data.solomon.accounts.reduce((total, acct) => {
+              return total + acct.holdings.reduce((a,h) => a + h.shares * (livePrices[h.ticker] || h.currentPrice), 0)
+            }, 0)
+
+            // Calculate live Schwab conservative total
+            const schwabConservative = data.portfolios.find(p => p.id === 'schwab-conservative')
+            const schwabConservativeLive = schwabConservative ? schwabConservative.capital : 50000
+
+            // Calculate live Schwab aggressive total
+            const schwabAggressiveLive = 29000
+
+            // Override static values with live calculated values
+            const dynamicAssets = nw.assets.map(cat => ({
+              ...cat,
+              items: cat.items.map(item => {
+                if (item.name.includes('Raymond James - JTWROS')) return { ...item, value: Math.round(data.solomon.accounts.find(a=>a.name.includes('JTWROS'))?.holdings.reduce((a,h)=>a+h.shares*(livePrices[h.ticker]||h.currentPrice),0) || item.value) }
+                if (item.name.includes('Raymond James - Collateral')) return { ...item, value: Math.round(data.solomon.accounts.find(a=>a.name.includes('Collateral'))?.holdings.reduce((a,h)=>a+h.shares*(livePrices[h.ticker]||h.currentPrice),0) || item.value) }
+                if (item.name.includes('Charles Schwab Investment')) return { ...item, value: schwabConservativeLive }
+                return item
+              })
+            }))
+
+            const totalAssets = dynamicAssets.reduce((a,cat) => a + cat.items.reduce((b,item) => b + item.value, 0), 0)
             const totalLiabilities = nw.liabilities.reduce((a,l) => a + l.value, 0)
             const netWorthVal = totalAssets - totalLiabilities
             return (
               <>
                 <div style={styles.grid4}>
                   {[
-                    { label: 'Total Assets',      value: `$${(totalAssets/1000000).toFixed(2)}M`,      color: '#00d4aa' },
-                    { label: 'Total Liabilities', value: `$${(totalLiabilities/1000).toFixed(0)}K`,    color: '#ff4757' },
-                    { label: 'Net Worth',          value: `$${(netWorthVal/1000000).toFixed(2)}M`,      color: '#00a8ff' },
-                    { label: 'Debt Ratio',         value: `${(totalLiabilities/totalAssets*100).toFixed(1)}%`, color: '#ffa502' },
+                    { label: 'Total Assets',      value: `$${(totalAssets/1000000).toFixed(2)}M`,      color: '#00d4aa',  sub: 'Incl. live market values' },
+                    { label: 'Total Liabilities', value: `$${(totalLiabilities/1000).toFixed(0)}K`,    color: '#ff4757',  sub: 'Mortgages & notes' },
+                    { label: 'Net Worth',          value: `$${(netWorthVal/1000000).toFixed(2)}M`,      color: '#00a8ff',  sub: 'Assets minus liabilities' },
+                    { label: 'Solomon (Live)',      value: `$${(solomonLive/1000000).toFixed(2)}M`,      color: '#a855f7',  sub: 'Raymond James • live prices' },
                   ].map(m => (
                     <div key={m.label} style={{ ...styles.card, borderTop: `3px solid ${m.color}` }}>
                       <div style={styles.cardTitle}>{m.label}</div>
                       <div style={{ ...styles.bigNumber, color: m.color }}>{m.value}</div>
+                      <div style={styles.subtext}>{m.sub}</div>
                     </div>
                   ))}
                 </div>
 
-                {nw.assets.map(cat => {
+                {dynamicAssets.map(cat => {
                   const catTotal = cat.items.reduce((a,i) => a + i.value, 0)
                   return (
                     <div key={cat.category} style={{ ...styles.card, marginBottom: 16 }}>

@@ -214,7 +214,7 @@ export async function GET() {
         id: 'solomon',
         name: 'Solomon Account',
         type: 'RAYMOND JAMES',
-        capital: 4250000,
+        capital: 3289762,
         color: '#a855f7',
         holdings: []
       }

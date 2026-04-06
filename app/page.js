@@ -23,13 +23,27 @@ const styles = {
 const signalColor = (s) => ({ BUY: '#00d4aa', SELL: '#ff4757', HOLD: '#ffa502', WATCH: '#a855f7', 'AT ZONE': '#00a8ff', 'IN ZONE': '#00d4aa', WATCHING: '#8892b0' }[s] || '#8892b0')
 
 export default function Dashboard() {
-  const [data, setData]       = useState(null)
-  const [tab, setTab]         = useState('overview')
-  const [loading, setLoading] = useState(true)
+  const [data, setData]         = useState(null)
+  const [livePrices, setLivePrices] = useState({})
+  const [tab, setTab]           = useState('overview')
+  const [loading, setLoading]   = useState(true)
+  const [priceStatus, setPriceStatus] = useState('loading')
 
   useEffect(() => {
-    fetch('/api/portfolio').then(r => r.json()).then(d => { setData(d); setLoading(false) })
+    // Load portfolio structure
+    fetch('/api/portfolio').then(r => r.json()).then(d => {
+      setData(d)
+      setLoading(false)
+    })
+    // Load live prices in parallel
+    fetch('/api/prices').then(r => r.json()).then(d => {
+      setLivePrices(d.prices || {})
+      setPriceStatus(`Live — ${new Date(d.fetchedAt).toLocaleTimeString()}`)
+    }).catch(() => setPriceStatus('Offline — showing last known prices'))
   }, [])
+
+  // Helper: get live price or fall back to static
+  const getPrice = (ticker, staticPrice) => livePrices[ticker] || staticPrice
 
   if (loading) return (
     <div style={{ ...styles.page, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -61,6 +75,7 @@ export default function Dashboard() {
         <div>
           <div style={styles.title}>⚡ Investment Command Center</div>
           <div style={styles.subtitle}>AI-Powered | 7 Institutional Frameworks | Updated: {new Date(data.lastUpdated).toLocaleString()}</div>
+        <div style={{ fontSize: 12, marginTop: 4, color: priceStatus.startsWith('Live') ? '#00d4aa' : '#ffa502' }}>📡 Prices: {priceStatus}</div>
         </div>
         <div style={{ textAlign: 'right' }}>
           <div style={{ color: '#00d4aa', fontSize: 22, fontWeight: 800 }}>${summary.totalCapital.toLocaleString()}</div>
@@ -263,7 +278,7 @@ export default function Dashboard() {
           {(() => {
             const allHoldings = data.solomon.accounts.flatMap(a => a.holdings)
             const totalCost = allHoldings.reduce((a,h) => a + h.shares * h.costBasis, 0)
-            const totalValue = allHoldings.reduce((a,h) => a + h.shares * h.currentPrice, 0)
+            const totalValue = allHoldings.reduce((a,h) => a + h.shares * (livePrices[h.ticker] || h.currentPrice), 0)
             const totalGain = totalValue - totalCost
             const gainPct = totalCost > 0 ? (totalGain / totalCost * 100).toFixed(1) : 0
             const totalPositions = allHoldings.length
@@ -287,7 +302,7 @@ export default function Dashboard() {
 
           {data.solomon.accounts.map(acct => {
             const acctCost  = acct.holdings.reduce((a,h) => a + h.shares * h.costBasis, 0)
-            const acctValue = acct.holdings.reduce((a,h) => a + h.shares * h.currentPrice, 0)
+            const acctValue = acct.holdings.reduce((a,h) => a + h.shares * (livePrices[h.ticker] || h.currentPrice), 0)
             const acctGain  = acctValue - acctCost
             const acctPct   = acctCost > 0 ? (acctGain / acctCost * 100).toFixed(1) : 0
             return (
@@ -307,9 +322,14 @@ export default function Dashboard() {
                     <tr>{['Ticker','Shares','Cost','Price','Cost Amt','Mkt Value','Gain $','Return'].map(h=><th key={h} style={styles.th}>{h}</th>)}</tr>
                   </thead>
                   <tbody>
-                    {[...acct.holdings].sort((a,b) => (b.shares*b.currentPrice)-(a.shares*a.currentPrice)).map((h,i) => {
+                    {[...acct.holdings].sort((a,b) => {
+                      const va = a.shares * (livePrices[a.ticker] || a.currentPrice)
+                      const vb = b.shares * (livePrices[b.ticker] || b.currentPrice)
+                      return vb - va
+                    }).map((h,i) => {
+                      const livePrice = livePrices[h.ticker] || h.currentPrice
                       const cost  = h.shares * h.costBasis
-                      const value = h.shares * h.currentPrice
+                      const value = h.shares * livePrice
                       const gain  = value - cost
                       const pct   = cost > 0 ? (gain / cost * 100).toFixed(1) : 0
                       return (
@@ -317,7 +337,7 @@ export default function Dashboard() {
                           <td style={{ ...styles.td, fontWeight: 700, color: acct.color }}>{h.ticker}</td>
                           <td style={styles.td}>{h.shares.toLocaleString(undefined,{maximumFractionDigits:2})}</td>
                           <td style={styles.td}>${h.costBasis.toFixed(2)}</td>
-                          <td style={styles.td}>${h.currentPrice.toFixed(2)}</td>
+                          <td style={{ ...styles.td, color: livePrices[h.ticker] ? '#00d4aa' : '#8892b0' }}>${(livePrices[h.ticker] || h.currentPrice).toFixed(2)}{livePrices[h.ticker] ? ' •' : ''}</td>
                           <td style={styles.td}>${cost.toLocaleString(undefined,{maximumFractionDigits:0})}</td>
                           <td style={{ ...styles.td, fontWeight: 600 }}>${value.toLocaleString(undefined,{maximumFractionDigits:0})}</td>
                           <td style={{ ...styles.td, color: gain >= 0 ? '#00d4aa' : '#ff4757', fontWeight: 700 }}>{gain >= 0 ? '+' : ''}${gain.toLocaleString(undefined,{maximumFractionDigits:0})}</td>

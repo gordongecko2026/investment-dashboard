@@ -498,13 +498,30 @@ export default function Dashboard() {
             // Calculate live Schwab aggressive total
             const schwabAggressiveLive = 29000
 
+            // Calculate live Schwab total across all 3 accounts
+            const schwabConservativeVal = data.portfolios
+              .find(p => p.id === 'schwab-conservative')?.holdings
+              .reduce((a,h) => a + h.shares * (livePrices[h.ticker] || h.costBasis), 0) || 0
+
+            const schwabAggressiveVal = data.portfolios
+              .find(p => p.id === 'schwab-aggressive')?.holdings
+              .filter(h => h.status === 'ACTIVE')
+              .reduce((a,h) => a + h.shares * (livePrices[h.ticker] || h.costBasis), 0) || 0
+
+            // Covered call positions (MO 100 shares)
+            const schwabCoveredCallVal = 100 * (livePrices['MO'] || 65.75)
+
+            const schwabCashBalance = 11979
+            const schwabTotalLive = Math.round(schwabConservativeVal + schwabAggressiveVal + schwabCoveredCallVal + schwabCashBalance)
+
             // Override static values with live calculated values
             const dynamicAssets = nw.assets.map(cat => ({
               ...cat,
               items: cat.items.map(item => {
                 if (item.name.includes('Raymond James - JTWROS')) return { ...item, value: Math.round(data.solomon.accounts.find(a=>a.name.includes('JTWROS'))?.holdings.reduce((a,h)=>a+h.shares*(livePrices[h.ticker]||h.currentPrice),0) || item.value) }
                 if (item.name.includes('Raymond James - Collateral')) return { ...item, value: Math.round(data.solomon.accounts.find(a=>a.name.includes('Collateral'))?.holdings.reduce((a,h)=>a+h.shares*(livePrices[h.ticker]||h.currentPrice),0) || item.value) }
-                if (item.name.includes('Charles Schwab Investment')) return { ...item, value: schwabConservativeLive }
+                if (item.name.includes('Charles Schwab Investment')) return { ...item, value: schwabTotalLive, live: true }
+                if (item.name.includes('Charles Schwab INV Cash')) return { ...item, value: 0 } // rolled into above
                 return item
               })
             }))
@@ -539,10 +556,13 @@ export default function Dashboard() {
                       </div>
                       <table style={styles.table}>
                         <tbody>
-                          {cat.items.map(item => (
+                          {cat.items.filter(item => item.value > 0).map(item => (
                             <tr key={item.name}>
-                              <td style={{ ...styles.td, color: '#ccd6f6' }}>{item.name}</td>
-                              <td style={{ ...styles.td, textAlign: 'right', fontWeight: 600, color: '#00d4aa' }}>${item.value.toLocaleString()}</td>
+                              <td style={{ ...styles.td, color: '#ccd6f6' }}>
+                                {item.name}
+                                {item.live && <span style={{ marginLeft: 8, fontSize: 10, background: 'rgba(0,212,170,0.15)', color: '#00d4aa', padding: '2px 6px', borderRadius: 4, fontWeight: 700 }}>LIVE</span>}
+                              </td>
+                              <td style={{ ...styles.td, textAlign: 'right', fontWeight: 600, color: item.live ? '#00d4aa' : '#00d4aa' }}>${item.value.toLocaleString()}</td>
                               <td style={{ ...styles.td, textAlign: 'right', color: '#8892b0', width: 80 }}>{(item.value/totalAssets*100).toFixed(1)}%</td>
                             </tr>
                           ))}

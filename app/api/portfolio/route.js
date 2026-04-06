@@ -29,8 +29,8 @@ export async function GET() {
         { category: 'Marketable Securities', items: [
           { name: 'Raymond James - JTWROS Equities', value: 1850000 },
           { name: 'Raymond James - Collateral Acct', value: 850000 },
-          { name: 'Charles Schwab Investment Acct', value: 65400 },
-          { name: 'Charles Schwab INV Cash', value: 3433 },
+          { name: 'Charles Schwab Investment Acct (Conservative + Aggressive + Covered Calls)', value: 43895 },
+          { name: 'Charles Schwab INV Cash', value: 0 },
         ]},
         { category: 'Retirement Plans', items: [
           { name: 'Andria HD Retirement Account (Solomon — IRA 650R6039)', value: 407000 },

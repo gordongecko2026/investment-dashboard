@@ -416,24 +416,30 @@ export default function Dashboard() {
                 <tr>{['Ticker','Rating','100sh Cost','Yield','Strike','Expiry','Est Premium','Premium %','Annualized','Status','Notes'].map(h=><th key={h} style={styles.th}>{h}</th>)}</tr>
               </thead>
               <tbody>
-                {[...data.coveredCalls.positions].sort((a,b) => b.annualizedReturn - a.annualizedReturn).map(p => {
-                  const livePrice = livePrices[p.ticker] || p.stockPrice
-                  const liveCost = livePrice * 100
-                  const statusColor = p.status === 'READY' ? '#00d4aa' : p.status === 'ACTIVE' ? '#00a8ff' : '#ffa502'
+                {[...data.coveredCalls.positions].sort((a,b) => {
+                  if (a.status === 'ACTIVE' && b.status !== 'ACTIVE') return -1
+                  if (b.status === 'ACTIVE' && a.status !== 'ACTIVE') return 1
+                  return b.annualizedReturn - a.annualizedReturn
+                }).map(p => {
+                  const livePrice   = livePrices[p.ticker] || p.stockPrice
+                  const liveCost    = livePrice * 100
+                  const isActive    = p.status === 'ACTIVE'
+                  const liveGain    = isActive ? ((livePrice - p.netCostBasis) * p.shares).toFixed(2) : null
+                  const statusColor = isActive ? '#00d4aa' : p.status === 'READY' ? '#00a8ff' : '#ffa502'
                   const ratingColor = p.rating === 'A' ? '#00d4aa' : p.rating === 'B+' ? '#00a8ff' : '#ffa502'
                   return (
-                    <tr key={p.ticker}>
+                    <tr key={p.ticker} style={isActive ? { background: 'rgba(0,212,170,0.04)' } : {}}>
                       <td style={{ ...styles.td, fontWeight: 800, color: '#f59e0b', fontSize: 15 }}>{p.ticker}</td>
                       <td style={styles.td}><span style={{ background: ratingColor+'22', color: ratingColor, padding: '2px 8px', borderRadius: 4, fontWeight: 700 }}>{p.rating}</span></td>
                       <td style={styles.td}>${liveCost.toLocaleString(undefined,{maximumFractionDigits:0})}</td>
                       <td style={{ ...styles.td, color: '#00d4aa' }}>{p.yield}%</td>
-                      <td style={{ ...styles.td, color: '#fff', fontWeight: 600 }}>${p.suggestedStrike}</td>
-                      <td style={{ ...styles.td, color: '#8892b0' }}>{p.suggestedExpiry}</td>
-                      <td style={{ ...styles.td, color: '#00d4aa', fontWeight: 700 }}>${p.estPremium}/sh (${(p.estPremium*100).toFixed(0)}/contract)</td>
-                      <td style={styles.td}>{p.estPremiumPct}%</td>
+                      <td style={{ ...styles.td, color: '#fff', fontWeight: 700 }}>{isActive ? `$${p.strike}` : `$${p.suggestedStrike||'-'}`}</td>
+                      <td style={{ ...styles.td, color: '#8892b0' }}>{isActive ? p.expiry : p.suggestedExpiry}</td>
+                      <td style={{ ...styles.td, color: '#00d4aa', fontWeight: 700 }}>{isActive ? `$${p.fillPrice}/sh ($${p.premiumCollected} collected)` : `~$${p.estPremium}/sh`}</td>
+                      <td style={styles.td}>{isActive ? `${p.premiumPct}%` : `${p.estPremiumPct}%`}</td>
                       <td style={{ ...styles.td, color: '#a855f7', fontWeight: 800 }}>{p.annualizedReturn}%</td>
                       <td style={styles.td}><span style={{ background: statusColor+'22', color: statusColor, padding: '3px 10px', borderRadius: 6, fontWeight: 700, fontSize: 12 }}>{p.status}</span></td>
-                      <td style={{ ...styles.td, color: '#8892b0', fontSize: 12, maxWidth: 200 }}>{p.note}</td>
+                      <td style={{ ...styles.td, color: '#8892b0', fontSize: 12, maxWidth: 200 }}>{isActive ? `✅ Filled ${p.filledAt} | Breakeven $${p.breakeven} | Max profit $${p.maxProfit}` : p.note}</td>
                     </tr>
                   )
                 })}

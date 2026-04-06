@@ -260,61 +260,76 @@ export default function Dashboard() {
       {/* SOLOMON */}
       {tab === 'solomon' && (
         <>
-          <div style={styles.grid4}>
-            {(() => {
-              const solomon = data.portfolios.find(p => p.id === 'solomon')
-              const holdings = solomon.holdings
-              const totalCost = holdings.reduce((a,h) => a + h.shares * h.costBasis, 0)
-              const totalValue = holdings.reduce((a,h) => a + h.shares * h.currentPrice, 0)
-              const totalGain = totalValue - totalCost
-              const gainPct = (totalGain / totalCost * 100).toFixed(1)
-              return [
-                { label: 'Total Market Value', value: `$${totalValue.toLocaleString(undefined,{maximumFractionDigits:0})}`, sub: 'Raymond James accounts', color: '#a855f7' },
-                { label: 'Total Cost Basis',   value: `$${totalCost.toLocaleString(undefined,{maximumFractionDigits:0})}`, sub: 'Original investment', color: '#8892b0' },
-                { label: 'Total Gain/Loss',     value: `$${totalGain.toLocaleString(undefined,{maximumFractionDigits:0})}`, sub: `${gainPct}% overall return`, color: totalGain >= 0 ? '#00d4aa' : '#ff4757' },
-                { label: 'Positions',           value: holdings.length, sub: 'Across all accounts', color: '#00a8ff' },
-              ].map(m => (
-                <div key={m.label} style={{ ...styles.card, borderTop: `3px solid ${m.color}` }}>
-                  <div style={styles.cardTitle}>{m.label}</div>
-                  <div style={{ ...styles.bigNumber, color: m.color }}>{m.value}</div>
-                  <div style={styles.subtext}>{m.sub}</div>
-                </div>
-              ))
-            })()}
-          </div>
+          {(() => {
+            const allHoldings = data.solomon.accounts.flatMap(a => a.holdings)
+            const totalCost = allHoldings.reduce((a,h) => a + h.shares * h.costBasis, 0)
+            const totalValue = allHoldings.reduce((a,h) => a + h.shares * h.currentPrice, 0)
+            const totalGain = totalValue - totalCost
+            const gainPct = totalCost > 0 ? (totalGain / totalCost * 100).toFixed(1) : 0
+            const totalPositions = allHoldings.length
+            return (
+              <div style={styles.grid4}>
+                {[
+                  { label: 'Total Market Value', value: `$${(totalValue/1000000).toFixed(2)}M`, sub: `${data.solomon.accounts.length} accounts`, color: '#a855f7' },
+                  { label: 'Total Cost Basis',   value: `$${(totalCost/1000000).toFixed(2)}M`,  sub: 'Original invested', color: '#8892b0' },
+                  { label: 'Total Gain',         value: `$${(totalGain/1000000).toFixed(2)}M`,  sub: `${gainPct}% overall return`, color: totalGain >= 0 ? '#00d4aa' : '#ff4757' },
+                  { label: 'Total Positions',    value: totalPositions, sub: 'All Raymond James accts', color: '#00a8ff' },
+                ].map(m => (
+                  <div key={m.label} style={{ ...styles.card, borderTop: `3px solid ${m.color}` }}>
+                    <div style={styles.cardTitle}>{m.label}</div>
+                    <div style={{ ...styles.bigNumber, color: m.color }}>{m.value}</div>
+                    <div style={styles.subtext}>{m.sub}</div>
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
 
-          <div style={styles.card}>
-            <div style={styles.cardTitle}>💼 Solomon / Raymond James — All Holdings</div>
-            <table style={styles.table}>
-              <thead>
-                <tr>{['Ticker','Account','Shares','Cost Basis','Current Price','Cost Amount','Mkt Value','Gain/Loss','Return %'].map(h=><th key={h} style={styles.th}>{h}</th>)}</tr>
-              </thead>
-              <tbody>
-                {(() => {
-                  const solomon = data.portfolios.find(p => p.id === 'solomon')
-                  return solomon.holdings.map((h,i) => {
-                    const cost = h.shares * h.costBasis
-                    const value = h.shares * h.currentPrice
-                    const gain = value - cost
-                    const pct = (gain / cost * 100).toFixed(1)
-                    return (
-                      <tr key={i}>
-                        <td style={{ ...styles.td, fontWeight: 700, color: '#a855f7' }}>{h.ticker}</td>
-                        <td style={{ ...styles.td, color: '#8892b0', fontSize: 12 }}>{h.account}</td>
-                        <td style={styles.td}>{h.shares.toLocaleString()}</td>
-                        <td style={styles.td}>${h.costBasis.toFixed(2)}</td>
-                        <td style={styles.td}>${h.currentPrice.toFixed(2)}</td>
-                        <td style={styles.td}>${cost.toLocaleString(undefined,{maximumFractionDigits:0})}</td>
-                        <td style={{ ...styles.td, fontWeight: 600 }}>${value.toLocaleString(undefined,{maximumFractionDigits:0})}</td>
-                        <td style={{ ...styles.td, color: gain >= 0 ? '#00d4aa' : '#ff4757', fontWeight: 700 }}>${gain.toLocaleString(undefined,{maximumFractionDigits:0})}</td>
-                        <td style={{ ...styles.td, color: gain >= 0 ? '#00d4aa' : '#ff4757', fontWeight: 700 }}>{gain >= 0 ? '+' : ''}{pct}%</td>
-                      </tr>
-                    )
-                  })
-                })()}
-              </tbody>
-            </table>
-          </div>
+          {data.solomon.accounts.map(acct => {
+            const acctCost  = acct.holdings.reduce((a,h) => a + h.shares * h.costBasis, 0)
+            const acctValue = acct.holdings.reduce((a,h) => a + h.shares * h.currentPrice, 0)
+            const acctGain  = acctValue - acctCost
+            const acctPct   = acctCost > 0 ? (acctGain / acctCost * 100).toFixed(1) : 0
+            return (
+              <div key={acct.name} style={{ ...styles.card, marginBottom: 20, borderLeft: `4px solid ${acct.color}` }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 15, color: acct.color }}>{acct.name}</div>
+                    <div style={{ color: '#8892b0', fontSize: 12, marginTop: 2 }}>{acct.holdings.length} positions</div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: 18, fontWeight: 800, color: '#fff' }}>${acctValue.toLocaleString(undefined,{maximumFractionDigits:0})}</div>
+                    <div style={{ color: acctGain >= 0 ? '#00d4aa' : '#ff4757', fontSize: 13, fontWeight: 600 }}>{acctGain >= 0 ? '+' : ''}${acctGain.toLocaleString(undefined,{maximumFractionDigits:0})} ({acctPct}%)</div>
+                  </div>
+                </div>
+                <table style={styles.table}>
+                  <thead>
+                    <tr>{['Ticker','Shares','Cost','Price','Cost Amt','Mkt Value','Gain $','Return'].map(h=><th key={h} style={styles.th}>{h}</th>)}</tr>
+                  </thead>
+                  <tbody>
+                    {[...acct.holdings].sort((a,b) => (b.shares*b.currentPrice)-(a.shares*a.currentPrice)).map((h,i) => {
+                      const cost  = h.shares * h.costBasis
+                      const value = h.shares * h.currentPrice
+                      const gain  = value - cost
+                      const pct   = cost > 0 ? (gain / cost * 100).toFixed(1) : 0
+                      return (
+                        <tr key={i}>
+                          <td style={{ ...styles.td, fontWeight: 700, color: acct.color }}>{h.ticker}</td>
+                          <td style={styles.td}>{h.shares.toLocaleString(undefined,{maximumFractionDigits:2})}</td>
+                          <td style={styles.td}>${h.costBasis.toFixed(2)}</td>
+                          <td style={styles.td}>${h.currentPrice.toFixed(2)}</td>
+                          <td style={styles.td}>${cost.toLocaleString(undefined,{maximumFractionDigits:0})}</td>
+                          <td style={{ ...styles.td, fontWeight: 600 }}>${value.toLocaleString(undefined,{maximumFractionDigits:0})}</td>
+                          <td style={{ ...styles.td, color: gain >= 0 ? '#00d4aa' : '#ff4757', fontWeight: 700 }}>{gain >= 0 ? '+' : ''}${gain.toLocaleString(undefined,{maximumFractionDigits:0})}</td>
+                          <td style={{ ...styles.td, color: gain >= 0 ? '#00d4aa' : '#ff4757', fontWeight: 700 }}>{gain >= 0 ? '+' : ''}{pct}%</td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )
+          })}
         </>
       )}
 

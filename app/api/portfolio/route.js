@@ -32,9 +32,10 @@ export async function GET() {
           { name: 'Charles Schwab INV Cash', value: 3433 },
         ]},
         { category: 'Retirement Plans', items: [
-          { name: 'Andria HD Retirement Account (IRA)', value: 185000 },
-          { name: 'Andria Merrill Lynch Account', value: 86870 },
-          { name: 'Citadel Dev - FRGXX', value: 316242 },
+          { name: 'Andria HD Retirement Account (Solomon — IRA 650R6039)', value: 407000 },
+          { name: 'Andria Merrill Lynch Account (not Solomon)', value: 86870 },
+          { name: 'Andria 401k (not Solomon)', value: 232037 },
+          { name: 'Citadel Dev - FRGXX (Solomon)', value: 316242 },
         ]},
         { category: 'Real Estate', items: [
           { name: '1184 County Road 200', value: 1245000 },

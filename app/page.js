@@ -49,6 +49,7 @@ export default function Dashboard() {
     { id: 'conservative', label: '🟢 Conservative' },
     { id: 'aggressive',   label: '🔥 Aggressive' },
     { id: 'solomon',      label: '👁 Solomon' },
+    { id: 'networth',     label: '🏦 Net Worth' },
     { id: 'income',       label: '💰 Income Goal' },
   ]
 
@@ -258,11 +259,131 @@ export default function Dashboard() {
 
       {/* SOLOMON */}
       {tab === 'solomon' && (
-        <div style={{ ...styles.card, textAlign: 'center', padding: 60 }}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>👁</div>
-          <div style={{ fontSize: 22, fontWeight: 700, color: '#a855f7', marginBottom: 8 }}>Solomon Account</div>
-          <div style={{ color: '#8892b0' }}>Details coming soon. This account will be configured in the next session.</div>
-        </div>
+        <>
+          <div style={styles.grid4}>
+            {(() => {
+              const solomon = data.portfolios.find(p => p.id === 'solomon')
+              const holdings = solomon.holdings
+              const totalCost = holdings.reduce((a,h) => a + h.shares * h.costBasis, 0)
+              const totalValue = holdings.reduce((a,h) => a + h.shares * h.currentPrice, 0)
+              const totalGain = totalValue - totalCost
+              const gainPct = (totalGain / totalCost * 100).toFixed(1)
+              return [
+                { label: 'Total Market Value', value: `$${totalValue.toLocaleString(undefined,{maximumFractionDigits:0})}`, sub: 'Raymond James accounts', color: '#a855f7' },
+                { label: 'Total Cost Basis',   value: `$${totalCost.toLocaleString(undefined,{maximumFractionDigits:0})}`, sub: 'Original investment', color: '#8892b0' },
+                { label: 'Total Gain/Loss',     value: `$${totalGain.toLocaleString(undefined,{maximumFractionDigits:0})}`, sub: `${gainPct}% overall return`, color: totalGain >= 0 ? '#00d4aa' : '#ff4757' },
+                { label: 'Positions',           value: holdings.length, sub: 'Across all accounts', color: '#00a8ff' },
+              ].map(m => (
+                <div key={m.label} style={{ ...styles.card, borderTop: `3px solid ${m.color}` }}>
+                  <div style={styles.cardTitle}>{m.label}</div>
+                  <div style={{ ...styles.bigNumber, color: m.color }}>{m.value}</div>
+                  <div style={styles.subtext}>{m.sub}</div>
+                </div>
+              ))
+            })()}
+          </div>
+
+          <div style={styles.card}>
+            <div style={styles.cardTitle}>💼 Solomon / Raymond James — All Holdings</div>
+            <table style={styles.table}>
+              <thead>
+                <tr>{['Ticker','Account','Shares','Cost Basis','Current Price','Cost Amount','Mkt Value','Gain/Loss','Return %'].map(h=><th key={h} style={styles.th}>{h}</th>)}</tr>
+              </thead>
+              <tbody>
+                {(() => {
+                  const solomon = data.portfolios.find(p => p.id === 'solomon')
+                  return solomon.holdings.map((h,i) => {
+                    const cost = h.shares * h.costBasis
+                    const value = h.shares * h.currentPrice
+                    const gain = value - cost
+                    const pct = (gain / cost * 100).toFixed(1)
+                    return (
+                      <tr key={i}>
+                        <td style={{ ...styles.td, fontWeight: 700, color: '#a855f7' }}>{h.ticker}</td>
+                        <td style={{ ...styles.td, color: '#8892b0', fontSize: 12 }}>{h.account}</td>
+                        <td style={styles.td}>{h.shares.toLocaleString()}</td>
+                        <td style={styles.td}>${h.costBasis.toFixed(2)}</td>
+                        <td style={styles.td}>${h.currentPrice.toFixed(2)}</td>
+                        <td style={styles.td}>${cost.toLocaleString(undefined,{maximumFractionDigits:0})}</td>
+                        <td style={{ ...styles.td, fontWeight: 600 }}>${value.toLocaleString(undefined,{maximumFractionDigits:0})}</td>
+                        <td style={{ ...styles.td, color: gain >= 0 ? '#00d4aa' : '#ff4757', fontWeight: 700 }}>${gain.toLocaleString(undefined,{maximumFractionDigits:0})}</td>
+                        <td style={{ ...styles.td, color: gain >= 0 ? '#00d4aa' : '#ff4757', fontWeight: 700 }}>{gain >= 0 ? '+' : ''}{pct}%</td>
+                      </tr>
+                    )
+                  })
+                })()}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+
+      {tab === 'networth' && (
+        <>
+          {(() => {
+            const nw = data.netWorth
+            const totalAssets = nw.assets.reduce((a,cat) => a + cat.items.reduce((b,item) => b + item.value, 0), 0)
+            const totalLiabilities = nw.liabilities.reduce((a,l) => a + l.value, 0)
+            const netWorthVal = totalAssets - totalLiabilities
+            return (
+              <>
+                <div style={styles.grid4}>
+                  {[
+                    { label: 'Total Assets',      value: `$${(totalAssets/1000000).toFixed(2)}M`,      color: '#00d4aa' },
+                    { label: 'Total Liabilities', value: `$${(totalLiabilities/1000).toFixed(0)}K`,    color: '#ff4757' },
+                    { label: 'Net Worth',          value: `$${(netWorthVal/1000000).toFixed(2)}M`,      color: '#00a8ff' },
+                    { label: 'Debt Ratio',         value: `${(totalLiabilities/totalAssets*100).toFixed(1)}%`, color: '#ffa502' },
+                  ].map(m => (
+                    <div key={m.label} style={{ ...styles.card, borderTop: `3px solid ${m.color}` }}>
+                      <div style={styles.cardTitle}>{m.label}</div>
+                      <div style={{ ...styles.bigNumber, color: m.color }}>{m.value}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {nw.assets.map(cat => {
+                  const catTotal = cat.items.reduce((a,i) => a + i.value, 0)
+                  return (
+                    <div key={cat.category} style={{ ...styles.card, marginBottom: 16 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                        <div style={styles.cardTitle}>{cat.category}</div>
+                        <div style={{ color: '#00d4aa', fontWeight: 700, fontSize: 16 }}>${catTotal.toLocaleString()}</div>
+                      </div>
+                      <table style={styles.table}>
+                        <tbody>
+                          {cat.items.map(item => (
+                            <tr key={item.name}>
+                              <td style={{ ...styles.td, color: '#ccd6f6' }}>{item.name}</td>
+                              <td style={{ ...styles.td, textAlign: 'right', fontWeight: 600, color: '#00d4aa' }}>${item.value.toLocaleString()}</td>
+                              <td style={{ ...styles.td, textAlign: 'right', color: '#8892b0', width: 80 }}>{(item.value/totalAssets*100).toFixed(1)}%</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )
+                })}
+
+                <div style={styles.card}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                    <div style={styles.cardTitle}>Liabilities</div>
+                    <div style={{ color: '#ff4757', fontWeight: 700, fontSize: 16 }}>${totalLiabilities.toLocaleString()}</div>
+                  </div>
+                  <table style={styles.table}>
+                    <tbody>
+                      {nw.liabilities.map(l => (
+                        <tr key={l.name}>
+                          <td style={{ ...styles.td, color: '#ccd6f6' }}>{l.name}</td>
+                          <td style={{ ...styles.td, textAlign: 'right', fontWeight: 600, color: '#ff4757' }}>${l.value.toLocaleString()}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            )
+          })()}
+        </>
       )}
 
       {/* INCOME GOAL */}

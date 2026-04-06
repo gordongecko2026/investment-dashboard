@@ -12,6 +12,48 @@ export async function GET() {
       monthlyIncomeTarget: 20000,
       currentMonthlyIncome: 167,
     },
+    netWorth: {
+      name: 'Jeremy & Andria Smith',
+      assets: [
+        { category: 'Cash On Hand', items: [
+          { name: 'Horizon Bank - CDS Savings', value: 725000 },
+          { name: 'Horizon Bank - Citadel MFC', value: 400000 },
+          { name: 'Raymond James - Cash Mgmt', value: 317400 },
+          { name: 'Horizon Bank - Personal MM', value: 191000 },
+          { name: 'Horizon Bank - Personal Checking', value: 10000 },
+          { name: 'Charles Schwab - Personal Checking', value: 3854 },
+          { name: 'Horizon - Tier 1 Cash/Equity', value: 60000 },
+          { name: 'Horizon CEDx', value: 64759 },
+          { name: 'Horizon Bank - Triple A Holdings', value: 7752 },
+        ]},
+        { category: 'Marketable Securities', items: [
+          { name: 'Raymond James - JTWROS Equities', value: 1850000 },
+          { name: 'Raymond James - Collateral Acct', value: 850000 },
+          { name: 'Charles Schwab Investment Acct', value: 65400 },
+          { name: 'Charles Schwab INV Cash', value: 3433 },
+        ]},
+        { category: 'Retirement Plans', items: [
+          { name: 'Andria HD Retirement Account', value: 185000 },
+          { name: 'Andria Merrill Lynch Account', value: 85000 },
+          { name: 'Citadel Dev - FRGXX', value: 316242 },
+        ]},
+        { category: 'Real Estate', items: [
+          { name: '1184 County Road 200', value: 1245000 },
+          { name: '811 E Hempstead, Giddings TX', value: 440000 },
+          { name: '8271 FM 1565', value: 385500 },
+        ]},
+        { category: 'Business Interests', items: [
+          { name: 'Citadel Development Services LLC (100%)', value: 6750000 },
+          { name: 'Citadel Excavation & Demolition LLC (100%)', value: 0 },
+          { name: 'Andria Home Depot Shares', value: 85000 },
+          { name: 'Allianz Insurance', value: 304266 },
+        ]},
+      ],
+      liabilities: [
+        { name: 'Capital Farm Credit (1184 CR 200)', value: 119520 },
+        { name: 'Horizon Bank (811 E Hempstead)', value: 291000 },
+      ]
+    },
     portfolios: [
       {
         id: 'schwab-conservative',
@@ -50,10 +92,35 @@ export async function GET() {
       {
         id: 'solomon',
         name: 'Solomon Account',
-        type: 'TBD',
-        capital: 0,
+        type: 'RAYMOND JAMES',
+        capital: 4250000,
         color: '#a855f7',
-        holdings: []
+        holdings: [
+          // Jeremy & Andria JTWROS - 363W9094 (key positions)
+          { ticker: 'NVDA',  shares: 1627,  costBasis: 13.21,  currentPrice: 177.39, account: 'JTWROS' },
+          { ticker: 'AAPL',  shares: 400,   costBasis: 131.45, currentPrice: 255.92, account: 'JTWROS' },
+          { ticker: 'AMZN',  shares: 260,   costBasis: 159.67, currentPrice: 209.77, account: 'JTWROS' },
+          { ticker: 'PLTR',  shares: 400,   costBasis: 14.19,  currentPrice: 148.46, account: 'JTWROS' },
+          { ticker: 'META',  shares: 75,    costBasis: 300.02, currentPrice: 574.46, account: 'JTWROS' },
+          { ticker: 'MSFT',  shares: 135,   costBasis: 223.28, currentPrice: 373.46, account: 'JTWROS' },
+          { ticker: 'JPM',   shares: 100,   costBasis: 125.09, currentPrice: 294.60, account: 'JTWROS' },
+          { ticker: 'VLO',   shares: 332,   costBasis: 54.83,  currentPrice: 244.09, account: 'JTWROS' },
+          { ticker: 'TSLA',  shares: 144,   costBasis: 208.06, currentPrice: 360.59, account: 'JTWROS' },
+          { ticker: 'HD',    shares: 200,   costBasis: 69.78,  currentPrice: 321.63, account: 'JTWROS' },
+          { ticker: 'ETN',   shares: 50,    costBasis: 281.78, currentPrice: 361.10, account: 'JTWROS' },
+          { ticker: 'LIN',   shares: 52,    costBasis: 256.90, currentPrice: 502.60, account: 'JTWROS' },
+          { ticker: 'DELL',  shares: 200,   costBasis: 39.84,  currentPrice: 174.37, account: 'JTWROS' },
+          { ticker: 'RTX',   shares: 190,   costBasis: 70.09,  currentPrice: 196.21, account: 'JTWROS' },
+          { ticker: 'PANW',  shares: 100,   costBasis: 142.01, currentPrice: 163.21, account: 'JTWROS' },
+          { ticker: 'ARM',   shares: 100,   costBasis: 71.19,  currentPrice: 149.11, account: 'JTWROS' },
+          { ticker: 'CRM',   shares: 75,    costBasis: 228.14, currentPrice: 187.18, account: 'JTWROS' },
+          { ticker: 'SHOP',  shares: 100,   costBasis: 82.99,  currentPrice: 118.25, account: 'JTWROS' },
+          { ticker: 'SNOW',  shares: 100,   costBasis: 114.08, currentPrice: 151.85, account: 'JTWROS' },
+          // Collateral Account
+          { ticker: 'GOOGL', shares: 600,   costBasis: 83.20,  currentPrice: 295.77, account: 'Collateral' },
+          { ticker: 'AAPL',  shares: 170,   costBasis: 115.22, currentPrice: 255.92, account: 'Collateral' },
+          { ticker: 'JPM',   shares: 152,   costBasis: 125.09, currentPrice: 294.60, account: 'Collateral' },
+        ]
       }
     ],
     incomeProjection: [

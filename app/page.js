@@ -154,9 +154,12 @@ export default function Dashboard() {
       {tab === 'conservative' && (
         <>
           {(() => {
-            const totalMktVal = conservative.holdings.reduce((a,h) => a + h.marketValue, 0)
-            const totalGain   = conservative.holdings.reduce((a,h) => a + h.gainLoss, 0)
             const totalCostB  = conservative.holdings.reduce((a,h) => a + h.costBasis * h.shares, 0)
+            const totalMktVal = conservative.holdings.reduce((a,h) => {
+              const lp = livePrices[h.ticker] || (h.marketValue / h.shares)
+              return a + lp * h.shares
+            }, 0)
+            const totalGain = totalMktVal - totalCostB
             const cashBalance = 11979
             const estAnnualIncome = conservative.holdings.reduce((a,h) => a + (h.marketValue * h.yield / 100), 0)
             return (
@@ -184,14 +187,23 @@ export default function Dashboard() {
                 <tr>{['Ticker','Shares','Cost Basis','Mkt Value','Gain $','Gain %','% of Acct','Yield','Signal','Confidence'].map(h=><th key={h} style={styles.th}>{h}</th>)}</tr>
               </thead>
               <tbody>
-                {conservative.holdings.filter(h=>h.shares>0).sort((a,b)=>b.marketValue-a.marketValue).map(h => (
+                {conservative.holdings.filter(h=>h.shares>0).sort((a,b) => {
+                  const lpA = livePrices[a.ticker] || (a.marketValue / a.shares)
+                  const lpB = livePrices[b.ticker] || (b.marketValue / b.shares)
+                  return lpB * b.shares - lpA * a.shares
+                }).map(h => {
+                  const livePrice  = livePrices[h.ticker] || (h.marketValue / h.shares)
+                  const liveMktVal = livePrice * h.shares
+                  const liveGain   = liveMktVal - h.costBasis * h.shares
+                  const liveGainPct = (liveGain / (h.costBasis * h.shares)) * 100
+                  return (
                   <tr key={h.ticker}>
-                    <td style={{ ...styles.td, fontWeight: 700, color: '#00d4aa' }}>{h.ticker}</td>
+                    <td style={{ ...styles.td, fontWeight: 700, color: '#00d4aa' }}>{h.ticker}{livePrices[h.ticker] ? <span style={{fontSize:9,marginLeft:4,color:'#00d4aa'}}>●</span> : null}</td>
                     <td style={styles.td}>{h.shares}</td>
                     <td style={styles.td}>${h.costBasis.toFixed(2)}</td>
-                    <td style={{ ...styles.td, fontWeight: 600 }}>${h.marketValue.toLocaleString(undefined,{maximumFractionDigits:2})}</td>
-                    <td style={{ ...styles.td, color: h.gainLoss >= 0 ? '#00d4aa' : '#ff4757', fontWeight: 700 }}>{h.gainLoss >= 0 ? '+' : ''}${h.gainLoss.toFixed(2)}</td>
-                    <td style={{ ...styles.td, color: h.gainPct >= 0 ? '#00d4aa' : '#ff4757' }}>{h.gainPct >= 0 ? '+' : ''}{h.gainPct.toFixed(2)}%</td>
+                    <td style={{ ...styles.td, fontWeight: 600 }}>${liveMktVal.toLocaleString(undefined,{maximumFractionDigits:2})}</td>
+                    <td style={{ ...styles.td, color: liveGain >= 0 ? '#00d4aa' : '#ff4757', fontWeight: 700 }}>{liveGain >= 0 ? '+' : ''}${liveGain.toFixed(2)}</td>
+                    <td style={{ ...styles.td, color: liveGainPct >= 0 ? '#00d4aa' : '#ff4757' }}>{liveGainPct >= 0 ? '+' : ''}{liveGainPct.toFixed(2)}%</td>
                     <td style={styles.td}>{h.pctOfAcct}%</td>
                     <td style={{ ...styles.td, color: h.yield >= 5 ? '#00d4aa' : h.yield >= 3.5 ? '#52e3c2' : '#fff' }}>{h.yield}%</td>
                     <td style={styles.td}>
@@ -206,7 +218,8 @@ export default function Dashboard() {
                       </div>
                     </td>
                   </tr>
-                ))}
+                  )
+                })}
               </tbody>
             </table>
           </div>

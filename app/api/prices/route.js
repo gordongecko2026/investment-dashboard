@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-// All unique tickers across Solomon accounts
+// All unique tickers across all accounts (Solomon + Schwab + Covered Calls)
 const SOLOMON_TICKERS = [
   // IRA
   'FTCS','IEMG','IEFA','MBB','IWN','SHV','IYC','MINT','XLP','XLE','XLV','XLI','XLU','TSLA','VOX','VFH','VGT',
@@ -8,6 +8,10 @@ const SOLOMON_TICKERS = [
   'GOOGL','AAPL','JPM','MDT','PAYX','SHOP','TDW','MOAT',
   // JTWROS
   'AMZN','ARM','CMS','DELL','ETN','HD','EEM','IYW','IYZ','LIN','META','MSFT','NVDA','PLTR','PANW','RTX','CRM','SNOW','BIL','XLY','XLF','XLB','VLO','TTD',
+  // Schwab Conservative
+  'MAIN','EPD','PG','EMR',
+  // Covered Call positions
+  'MO','VZ','PFE','T',
 ]
 
 async function fetchPrice(ticker) {

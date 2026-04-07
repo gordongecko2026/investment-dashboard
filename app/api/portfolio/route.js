@@ -4,13 +4,16 @@ export async function GET() {
   const data = {
     lastUpdated: new Date().toISOString(),
     summary: {
-      totalCapital: 43894,
-      deployedCapital: 31916,
-      reserve: 11979,
+      totalCapital: 45746,
+      deployedCapital: 38163,
+      reserve: 7582,
       goal: 240000,
       monthlyIncomeTarget: 20000,
       currentMonthlyIncome: 167,
-      asOf: '2026-04-06 10:08 AM ET',
+      asOf: '2026-04-07 09:52 AM ET',
+      dayChange: 2018.16,
+      dayChangePct: 4.41,
+      totalGainLoss: -20.00,
     },
     netWorth: {
       name: 'Jeremy & Andria Smith',
@@ -182,33 +185,24 @@ export async function GET() {
         id: 'schwab-conservative',
         name: 'Schwab Conservative',
         type: 'INCOME',
-        capital: 13479,
+        capital: 9358,
         color: '#00d4aa',
-        asOf: '2026-04-06',
+        asOf: '2026-04-07 09:52 AM ET',
         holdings: [
-          { ticker: 'MO',   shares: 100, costBasis: 65.375, marketValue: 6575.43,  gainLoss: 37.93,   gainPct: 0.58,  pctOfAcct: 14.98, yield: 6.45, payout: 79.0, signal: 'BUY',  confidence: 8 },
-          { ticker: 'MAIN', shares: 45,  costBasis: 53.665, marketValue: 2419.88,  gainLoss: 4.95,    gainPct: 0.20,  pctOfAcct: 5.51,  yield: 5.93, payout: 76.8, signal: 'BUY',  confidence: 9 },
-          { ticker: 'EPD',  shares: 57,  costBasis: 37.689, marketValue: 2148.90,  gainLoss: 0.58,    gainPct: 0.03,  pctOfAcct: 4.90,  yield: 5.79, payout: 81.2, signal: 'BUY',  confidence: 8 },
-          { ticker: 'VZ',   shares: 44,  costBasis: 49.555, marketValue: 2181.02,  gainLoss: 0.60,    gainPct: 0.03,  pctOfAcct: 4.97,  yield: 5.73, payout: 67.4, signal: 'BUY',  confidence: 8 },
-          { ticker: 'PG',   shares: 11,  costBasis: 142.900,marketValue: 1577.10,  gainLoss: 5.20,    gainPct: 0.33,  pctOfAcct: 3.59,  yield: 2.95, payout: 61.9, signal: 'BUY',  confidence: 8 },
-          { ticker: 'EMR',  shares: 9,   costBasis: 130.530,marketValue: 1177.71,  gainLoss: 2.94,    gainPct: 0.25,  pctOfAcct: 2.68,  yield: 1.69, payout: 52.0, signal: 'BUY',  confidence: 7 },
+          { ticker: 'MAIN', shares: 45,  costBasis: 53.665, marketValue: 2427.75, gainLoss: 12.82,  gainPct: 0.53,  dayChange: -11.25, pctOfAcct: 5.20, yield: 5.93, payout: 76.8, signal: 'BUY', confidence: 9 },
+          { ticker: 'EPD',  shares: 57,  costBasis: 37.689, marketValue: 2181.01, gainLoss: 32.69,  gainPct: 1.52,  dayChange: 24.70,  pctOfAcct: 4.67, yield: 5.79, payout: 81.2, signal: 'BUY', confidence: 8 },
+          { ticker: 'PG',   shares: 11,  costBasis: 142.900,marketValue: 1560.46, gainLoss: -11.44, gainPct: -0.73, dayChange: -10.01, pctOfAcct: 3.34, yield: 2.95, payout: 61.9, signal: 'BUY', confidence: 8 },
+          { ticker: 'EMR',  shares: 9,   costBasis: 130.530,marketValue: 1189.13, gainLoss: 14.36,  gainPct: 1.22,  dayChange: -4.82,  pctOfAcct: 2.54, yield: 1.69, payout: 52.0, signal: 'BUY', confidence: 7 },
         ]
       },
       {
         id: 'schwab-aggressive',
         name: 'Schwab Aggressive',
-        type: 'GROWTH',
-        capital: 15835,
+        type: 'CLOSED — Converted to Covered Calls',
+        capital: 0,
         color: '#ff6b35',
-        asOf: '2026-04-06',
-        holdings: [
-          { ticker: 'GOOGL', shares: 16,  costBasis: 296.255, marketValue: 4749.78,  gainLoss: 9.70,   gainPct: 0.20,  pctOfAcct: 10.82, entryLow: 280, entryHigh: 295, target: 338, stop: 260, position: 5000, status: 'ACTIVE'   },
-          { ticker: 'META',  shares: 6,   costBasis: 578.460, marketValue: 3465.04,  gainLoss: -5.72,  gainPct: -0.16, pctOfAcct: 7.89,  entryLow: 540, entryHigh: 575, target: 660, stop: 502, position: 4000, status: 'ACTIVE'   },
-          { ticker: 'PLTR',  shares: 26,  costBasis: 150.145, marketValue: 3863.99,  gainLoss: -39.78, gainPct: -1.02, pctOfAcct: 8.80,  entryLow: 130, entryHigh: 150, target: 178, stop: 121, position: 4000, status: 'ACTIVE'   },
-          { ticker: 'AMD',   shares: 17,  costBasis: 223.250, marketValue: 3756.69,  gainLoss: -38.56, gainPct: -1.02, pctOfAcct: 8.56,  entryLow: 200, entryHigh: 220, target: 255, stop: 186, position: 4000, status: 'ACTIVE'   },
-          { ticker: 'NVDA',  shares: 0,   costBasis: 0,       marketValue: 0,        gainLoss: 0,      gainPct: 0,     pctOfAcct: 0,     entryLow: 165, entryHigh: 175, target: 207, stop: 153, position: 5000, status: 'WATCHING' },
-          { ticker: 'COIN',  shares: 0,   costBasis: 0,       marketValue: 0,        gainLoss: 0,      gainPct: 0,     pctOfAcct: 0,     entryLow: 155, entryHigh: 180, target: 220, stop: 144, position: 4000, status: 'WATCHING' },
-        ]
+        asOf: '2026-04-07',
+        holdings: []
       },
       {
         id: 'solomon',
@@ -232,38 +226,53 @@ export async function GET() {
       ],
       positions: [
         {
-          ticker: 'MO',   shares: 100, costBasis: 65.92, netCostBasis: 65.28, totalCost: 6592,
+          ticker: 'MO',   shares: 100, costBasis: 65.92,  netCostBasis: 65.28, totalCost: 6592,
+          stockPrice: 67.04, stockValue: 6703.86, stockGain: 111.86, stockGainPct: 1.70,
+          dayChange: 48.86,
           yield: 6.45, status: 'ACTIVE', strike: 70.00, expiry: '05/08/2026',
+          optionValue: -71.50, optionCost: -63.34, optionGain: -8.16,
           fillPrice: 0.64, premiumCollected: 64, premiumPct: 0.97, annualizedReturn: 11.6,
           maxProfit: 472, breakeven: 65.28, filledAt: '04/06/2026',
           note: 'Sell to Open 1 MO $70 Call exp 05/08/2026 @ $0.64', rating: 'A'
         },
         {
           ticker: 'PLTR', shares: 100, costBasis: 147.50, netCostBasis: 141.45, totalCost: 14750,
+          stockPrice: 146.61, stockValue: 14661.42, stockGain: -88.58, stockGainPct: -0.60,
+          dayChange: -131.58,
           yield: 0, status: 'ACTIVE', strike: 160.00, expiry: '05/15/2026',
+          optionValue: -600.00, optionCost: -612.33, optionGain: 12.33,
           fillPrice: 6.05, premiumCollected: 605, premiumPct: 4.10, annualizedReturn: 49.2,
           maxProfit: 1855, breakeven: 141.45, filledAt: '04/07/2026',
           note: 'Sell to Open 1 PLTR $160 Call exp 05/15/2026 @ $6.05', rating: 'A'
         },
         {
-          ticker: 'VZ',   shares: 100, costBasis: 49.50, netCostBasis: 48.28, totalCost: 4950,
+          ticker: 'VZ',   shares: 100, costBasis: 49.505, netCostBasis: 48.285, totalCost: 4950,
+          stockPrice: 48.775, stockValue: 4877.50, stockGain: -72.50, stockGainPct: -1.46,
+          dayChange: -37.50,
           yield: 5.73, status: 'ACTIVE', strike: 49.00, expiry: '05/15/2026',
+          optionValue: -139.00, optionCost: -135.34, optionGain: -3.66,
           fillPrice: 1.22, premiumCollected: 122, premiumPct: 2.46, annualizedReturn: 29.6,
-          maxProfit: 272, breakeven: 48.28, filledAt: '04/07/2026',
+          maxProfit: 272, breakeven: 48.285, filledAt: '04/07/2026',
           note: 'Sell to Open 1 VZ $49 Call exp 05/15/2026 @ $1.22', rating: 'A'
         },
         {
-          ticker: 'PFE',  shares: 100, costBasis: 28.50, netCostBasis: 28.01, totalCost: 2850,
+          ticker: 'PFE',  shares: 100, costBasis: 27.1366, netCostBasis: 26.6466, totalCost: 2714,
+          stockPrice: 27.155, stockValue: 2715.50, stockGain: 1.84, stockGainPct: 0.07,
+          dayChange: 1.84,
           yield: 6.07, status: 'ACTIVE', strike: 28.00, expiry: '05/15/2026',
+          optionValue: -57.00, optionCost: -54.34, optionGain: -2.66,
           fillPrice: 0.49, premiumCollected: 49, premiumPct: 1.72, annualizedReturn: 20.6,
-          maxProfit: 99, breakeven: 28.01, filledAt: '04/07/2026',
+          maxProfit: 99, breakeven: 26.6466, filledAt: '04/07/2026',
           note: 'Sell to Open 1 PFE $28 Call exp 05/15/2026 @ $0.49', rating: 'B+'
         },
         {
-          ticker: 'T',    shares: 100, costBasis: 28.33, netCostBasis: 27.26, totalCost: 2833,
+          ticker: 'T',    shares: 100, costBasis: 28.345, netCostBasis: 27.275, totalCost: 2835,
+          stockPrice: 28.32, stockValue: 2832.00, stockGain: -2.50, stockGainPct: -0.09,
+          dayChange: -2.50,
           yield: 3.92, status: 'ACTIVE', strike: 28.00, expiry: '05/15/2026',
+          optionValue: -116.50, optionCost: -114.34, optionGain: -2.16,
           fillPrice: 1.07, premiumCollected: 107, premiumPct: 3.78, annualizedReturn: 45.4,
-          maxProfit: 207, breakeven: 27.26, filledAt: '04/07/2026',
+          maxProfit: 207, breakeven: 27.275, filledAt: '04/07/2026',
           note: 'Sell to Open 1 T $28 Call exp 05/15/2026 @ $1.07', rating: 'A'
         },
       ]

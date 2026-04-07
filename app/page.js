@@ -97,14 +97,14 @@ export default function Dashboard() {
         <>
           <div style={styles.grid4}>
             {[
-              { label: 'Total Capital',    value: `$${summary.totalCapital.toLocaleString()}`,    sub: '3 portfolios' },
+              { label: 'Total Capital',    value: `$${summary.totalCapital.toLocaleString()}`,    sub: `As of ${summary.asOf}` },
+              { label: 'Today\'s Gain',    value: `${summary.dayChange >= 0 ? '+' : ''}$${summary.dayChange?.toLocaleString(undefined,{maximumFractionDigits:2})}`, sub: `${summary.dayChangePct >= 0 ? '+' : ''}${summary.dayChangePct}% today`, color: summary.dayChange >= 0 ? '#00d4aa' : '#ff4757' },
               { label: 'Monthly Income',   value: `$${summary.currentMonthlyIncome.toLocaleString()}`, sub: `Goal: $${summary.monthlyIncomeTarget.toLocaleString()}/mo` },
-              { label: 'Goal Progress',    value: `${(summary.currentMonthlyIncome/summary.monthlyIncomeTarget*100).toFixed(1)}%`, sub: 'To $20K/month' },
               { label: 'Reserve Cash',     value: `$${summary.reserve.toLocaleString()}`,         sub: 'Dry powder' },
             ].map(m => (
               <div key={m.label} style={styles.card}>
                 <div style={styles.cardTitle}>{m.label}</div>
-                <div style={styles.bigNumber}>{m.value}</div>
+                <div style={{ ...styles.bigNumber, color: m.color || '#fff' }}>{m.value}</div>
                 <div style={styles.subtext}>{m.sub}</div>
               </div>
             ))}

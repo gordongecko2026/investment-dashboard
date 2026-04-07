@@ -214,7 +214,7 @@ export async function GET() {
       }
     ],
     coveredCalls: {
-      totalCapital: 9500,
+      totalCapital: 31841,
       description: 'Sell covered calls on 100-share positions to generate monthly premium income.',
       rules: [
         'Buy 100 shares of target stock',

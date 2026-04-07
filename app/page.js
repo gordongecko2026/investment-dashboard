@@ -387,13 +387,13 @@ export default function Dashboard() {
           {(() => {
             const cc = data.coveredCalls
             const totalDeployed = cc.positions.reduce((a,p) => a + p.totalCost, 0)
-            const estMonthlyPremium = cc.positions.reduce((a,p) => a + p.estPremium * p.shares, 0)
+            const estMonthlyPremium = cc.positions.filter(p => p.status === 'ACTIVE').reduce((a,p) => a + (p.fillPrice || 0) * (p.shares || 100), 0)
             const estAnnualPremium = estMonthlyPremium * 12
             const avgAnnualized = cc.positions.reduce((a,p) => a + p.annualizedReturn, 0) / cc.positions.length
             return (
               <div style={styles.grid4}>
                 {[
-                  { label: 'Capital Allocated',    value: `$${cc.totalCapital.toLocaleString()}`, sub: 'Covered call budget',        color: '#f59e0b' },
+                  { label: 'Capital Allocated',    value: `$${totalDeployed.toLocaleString()}`, sub: `${cc.positions.filter(p=>p.status==='ACTIVE').length} active positions`,        color: '#f59e0b' },
                   { label: 'Est. Monthly Premium', value: `$${estMonthlyPremium.toFixed(0)}`,      sub: 'Per month from all calls',   color: '#00d4aa' },
                   { label: 'Est. Annual Premium',  value: `$${estAnnualPremium.toFixed(0)}`,       sub: 'Premium income only',        color: '#00a8ff' },
                   { label: 'Avg Annualized Return',value: `${avgAnnualized.toFixed(1)}%`,          sub: 'Premium + dividend combined', color: '#a855f7' },

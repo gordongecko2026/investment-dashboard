@@ -214,7 +214,7 @@ export async function GET() {
       }
     ],
     coveredCalls: {
-      totalCapital: 31841,
+      totalCapital: 38886,  // updated Apr 13: added HOOD $7,045
       description: 'Sell covered calls on 100-share positions to generate monthly premium income.',
       rules: [
         'Buy 100 shares of target stock',
@@ -236,44 +236,54 @@ export async function GET() {
           note: 'Sell to Open 1 MO $70 Call exp 05/08/2026 @ $0.64', rating: 'A'
         },
         {
-          ticker: 'PLTR', shares: 100, costBasis: 147.50, netCostBasis: 141.45, totalCost: 14750,
-          stockPrice: 146.61, stockValue: 14661.42, stockGain: -88.58, stockGainPct: -0.60,
-          dayChange: -131.58,
-          yield: 0, status: 'ACTIVE', strike: 160.00, expiry: '05/15/2026',
-          optionValue: -600.00, optionCost: -612.33, optionGain: 12.33,
-          fillPrice: 6.05, premiumCollected: 605, premiumPct: 4.10, annualizedReturn: 49.2,
-          maxProfit: 1855, breakeven: 141.45, filledAt: '04/07/2026',
-          note: 'Sell to Open 1 PLTR $160 Call exp 05/15/2026 @ $6.05', rating: 'A'
+          ticker: 'PLTR', shares: 100, costBasis: 147.50, netCostBasis: 140.93, totalCost: 14750,
+          stockPrice: 132.19, stockValue: 13219, stockGain: -1531, stockGainPct: -10.4,
+          dayChange: 320,
+          yield: 0, status: 'ACTIVE', strike: 135.00, expiry: '05/15/2026',
+          optionValue: -760, optionCost: -657.50, optionGain: -102.50,
+          fillPrice: 6.575, premiumCollected: 657.50, premiumPct: 4.46, annualizedReturn: 53.5,
+          maxProfit: 2207, breakeven: 140.93, filledAt: '04/10/2026',
+          note: 'Sell to Open 1 PLTR $135 Call exp 05/15/2026 @ $6.575 — ⚠️ Watch: $2.81 buffer', rating: 'A'
         },
         {
-          ticker: 'VZ',   shares: 100, costBasis: 49.505, netCostBasis: 48.285, totalCost: 4950,
-          stockPrice: 48.775, stockValue: 4877.50, stockGain: -72.50, stockGainPct: -1.46,
-          dayChange: -37.50,
-          yield: 5.73, status: 'ACTIVE', strike: 49.00, expiry: '05/15/2026',
-          optionValue: -139.00, optionCost: -135.34, optionGain: -3.66,
-          fillPrice: 1.22, premiumCollected: 122, premiumPct: 2.46, annualizedReturn: 29.6,
-          maxProfit: 272, breakeven: 48.285, filledAt: '04/07/2026',
-          note: 'Sell to Open 1 VZ $49 Call exp 05/15/2026 @ $1.22', rating: 'A'
+          ticker: 'HOOD', shares: 100, costBasis: 70.575, netCostBasis: 66.685, totalCost: 7057.50,
+          stockPrice: 70.50, stockValue: 7050, stockGain: -7.50, stockGainPct: -0.11,
+          dayChange: 0,
+          yield: 0, status: 'ACTIVE', strike: 75.00, expiry: '05/15/2026',
+          optionValue: -391, optionCost: -391, optionGain: 0,
+          fillPrice: 3.95, premiumCollected: 395, premiumPct: 5.60, annualizedReturn: 67.2,
+          maxProfit: 842, breakeven: 66.685, filledAt: '04/13/2026',
+          note: 'Sell to Open 1 HOOD $75 Call exp 05/15/2026 @ $3.95', rating: 'A'
+        },
+        {
+          ticker: 'VZ',   shares: 100, costBasis: 49.505, netCostBasis: 48.985, totalCost: 4950,
+          stockPrice: 45.19, stockValue: 4519, stockGain: -431, stockGainPct: -8.71,
+          dayChange: -90,
+          yield: 6.50, status: 'ACTIVE', strike: 48.00, expiry: '05/15/2026',
+          optionValue: -49, optionCost: -49, optionGain: 0,
+          fillPrice: 0.49, premiumCollected: 49, premiumPct: 0.99, annualizedReturn: 11.9,
+          maxProfit: 149, breakeven: 48.985, filledAt: '04/13/2026',
+          note: 'Sell to Open 1 VZ $48 Call exp 05/15/2026 @ $0.49', rating: 'B+'
         },
         {
           ticker: 'PFE',  shares: 100, costBasis: 27.1366, netCostBasis: 26.6466, totalCost: 2714,
-          stockPrice: 27.155, stockValue: 2715.50, stockGain: 1.84, stockGainPct: 0.07,
-          dayChange: 1.84,
+          stockPrice: 27.15, stockValue: 2715, stockGain: 1.34, stockGainPct: 0.05,
+          dayChange: 0,
           yield: 6.07, status: 'ACTIVE', strike: 28.00, expiry: '05/15/2026',
-          optionValue: -57.00, optionCost: -54.34, optionGain: -2.66,
+          optionValue: -32, optionCost: -49, optionGain: 17,
           fillPrice: 0.49, premiumCollected: 49, premiumPct: 1.72, annualizedReturn: 20.6,
           maxProfit: 99, breakeven: 26.6466, filledAt: '04/07/2026',
           note: 'Sell to Open 1 PFE $28 Call exp 05/15/2026 @ $0.49', rating: 'B+'
         },
         {
-          ticker: 'T',    shares: 100, costBasis: 28.345, netCostBasis: 27.275, totalCost: 2835,
-          stockPrice: 28.32, stockValue: 2832.00, stockGain: -2.50, stockGainPct: -0.09,
-          dayChange: -2.50,
-          yield: 3.92, status: 'ACTIVE', strike: 28.00, expiry: '05/15/2026',
-          optionValue: -116.50, optionCost: -114.34, optionGain: -2.16,
-          fillPrice: 1.07, premiumCollected: 107, premiumPct: 3.78, annualizedReturn: 45.4,
-          maxProfit: 207, breakeven: 27.275, filledAt: '04/07/2026',
-          note: 'Sell to Open 1 T $28 Call exp 05/15/2026 @ $1.07', rating: 'A'
+          ticker: 'T',    shares: 100, costBasis: 28.345, netCostBasis: 27.975, totalCost: 2835,
+          stockPrice: 25.50, stockValue: 2550, stockGain: -285, stockGainPct: -10.05,
+          dayChange: -95,
+          yield: 3.92, status: 'ACTIVE', strike: 27.00, expiry: '05/15/2026',
+          optionValue: -34, optionCost: -34, optionGain: 0,
+          fillPrice: 0.34, premiumCollected: 34, premiumPct: 1.20, annualizedReturn: 14.4,
+          maxProfit: 134, breakeven: 27.975, filledAt: '04/13/2026',
+          note: 'Sell to Open 1 T $27 Call exp 05/15/2026 @ $0.34', rating: 'B+'
         },
       ]
     },
@@ -289,7 +299,36 @@ export async function GET() {
       { year: 2034, monthly: 14000, portfolio: 2100000 },
       { year: 2035, monthly: 18500, portfolio: 2700000 },
       { year: 2036, monthly: 24000, portfolio: 3400000 },
-    ]
+    ],
+    pnl: {
+      period: 'Apr 1 – Apr 13, 2026',
+      lastUpdated: '2026-04-13',
+      stockTrades: [
+        { ticker: 'GOOGL', shares: 16,  buyDate: '04/06/2026', buyPrice: 296.255, sellDate: '04/07/2026', sellPrice: 302.45,    fees: 0.10, pnl: 99.02,   note: '' },
+        { ticker: 'MO',    shares: 100, buyDate: '04/06/2026', buyPrice: 65.375,  sellDate: '04/07/2026', sellPrice: 66.72,     fees: 0.16, pnl: 134.34, note: '' },
+        { ticker: 'AMD',   shares: 17,  buyDate: '04/06/2026', buyPrice: 223.2499,sellDate: '04/07/2026', sellPrice: 221.18,    fees: 0.08, pnl: -35.27, note: '' },
+        { ticker: 'META',  shares: 6,   buyDate: '04/06/2026', buyPrice: 578.46,  sellDate: '04/07/2026', sellPrice: 570.4301,  fees: 0.07, pnl: -48.25, note: '' },
+        { ticker: 'EETH',  shares: 820, buyDate: 'Unknown',    buyPrice: null,    sellDate: '04/06/2026', sellPrice: 26.565,    fees: 0.16, pnl: null,   note: 'Cost basis needed — est. ~-$30,012 loss' },
+        { ticker: 'STRC',  shares: 125, buyDate: 'Unknown',    buyPrice: null,    sellDate: '04/06/2026', sellPrice: 99.995,    fees: 0.02, pnl: null,   note: 'Cost basis needed' },
+        { ticker: 'HOOD',  shares: 100, buyDate: '04/13/2026', buyPrice: 70.575,  sellDate: null,         sellPrice: null,      fees: 0,    pnl: null,   note: 'Holding — covered call position' },
+      ],
+      optionPremiums: [
+        { date: '04/06/2026', contract: 'MO $70 Call',    expiry: '05/08/2026', premium: 0.64,  contracts: 1, fees: 0.66, net: 63.34,  status: 'OPEN' },
+        { date: '04/07/2026', contract: 'PLTR $160 Call', expiry: '05/15/2026', premium: 6.13,  contracts: 1, fees: 0.67, net: 612.33, status: 'CLOSED — +$422 profit' },
+        { date: '04/07/2026', contract: 'VZ $49 Call',    expiry: '05/15/2026', premium: 1.36,  contracts: 1, fees: 0.66, net: 135.34, status: 'CLOSED — +$68 profit' },
+        { date: '04/07/2026', contract: 'PFE $28 Call',   expiry: '05/15/2026', premium: 0.55,  contracts: 1, fees: 0.66, net: 54.34,  status: 'OPEN' },
+        { date: '04/07/2026', contract: 'T $28 Call',     expiry: '05/15/2026', premium: 1.15,  contracts: 1, fees: 0.66, net: 114.34, status: 'CLOSED — +$72 profit' },
+        { date: '04/10/2026', contract: 'PLTR $135 Call', expiry: '05/15/2026', premium: 6.575, contracts: 1, fees: 0.67, net: 657.50, status: 'OPEN' },
+        { date: '04/10/2026', contract: 'T $28 Call',     expiry: '05/15/2026', premium: 0.395, contracts: 1, fees: 0.66, net: 38.84,  status: 'CLOSED — +$21 profit' },
+        { date: '04/10/2026', contract: 'VZ $49 Call',    expiry: '05/15/2026', premium: 0.47,  contracts: 1, fees: 0.66, net: 46.34,  status: 'CLOSED — +$38 profit' },
+        { date: '04/13/2026', contract: 'HOOD $75 Call',  expiry: '05/15/2026', premium: 3.95,  contracts: 1, fees: 0.66, net: 394.34, status: 'OPEN' },
+        { date: '04/13/2026', contract: 'VZ $48 Call',    expiry: '05/15/2026', premium: 0.49,  contracts: 1, fees: 0.66, net: 48.34,  status: 'OPEN' },
+        { date: '04/13/2026', contract: 'T $27 Call',     expiry: '05/15/2026', premium: 0.34,  contracts: 1, fees: 0.66, net: 33.34,  status: 'OPEN' },
+      ],
+      other: [
+        { date: '03/31/2026', type: 'Return of Capital', ticker: 'STRC', amount: 119.79 },
+      ]
+    }
   }
   return NextResponse.json(data)
 }

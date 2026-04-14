@@ -23,23 +23,20 @@ const styles = {
 const signalColor = (s) => ({ BUY: '#00d4aa', SELL: '#ff4757', HOLD: '#ffa502', WATCH: '#a855f7', 'AT ZONE': '#00a8ff', 'IN ZONE': '#00d4aa', WATCHING: '#8892b0' }[s] || '#8892b0')
 
 export default function Dashboard() {
-  const [data, setData]         = useState(null)
+  const [data, setData]             = useState(null)
   const [livePrices, setLivePrices] = useState({})
-  const [tab, setTab]           = useState('overview')
-  const [loading, setLoading]   = useState(true)
+  const [reData, setReData]         = useState(null)
+  const [tab, setTab]               = useState('overview')
+  const [loading, setLoading]       = useState(true)
   const [priceStatus, setPriceStatus] = useState('loading')
 
   useEffect(() => {
-    // Load portfolio structure
-    fetch('/api/portfolio').then(r => r.json()).then(d => {
-      setData(d)
-      setLoading(false)
-    })
-    // Load live prices in parallel
+    fetch('/api/portfolio').then(r => r.json()).then(d => { setData(d); setLoading(false) })
     fetch('/api/prices').then(r => r.json()).then(d => {
       setLivePrices(d.prices || {})
       setPriceStatus(`Live — ${new Date(d.fetchedAt).toLocaleTimeString()}`)
     }).catch(() => setPriceStatus('Offline — showing last known prices'))
+    fetch('/api/realestate').then(r => r.json()).then(d => setReData(d)).catch(() => {})
   }, [])
 
   // Helper: get live price or fall back to static
@@ -66,6 +63,7 @@ export default function Dashboard() {
     { id: 'coveredcall', label: '💹 Covered Calls' },
     { id: 'networth',     label: '🏦 Net Worth' },
     { id: 'income',       label: '💰 Income Goal' },
+    { id: 'realestate',   label: '🏠 Real Estate' },
   ]
 
   return (
@@ -679,6 +677,119 @@ export default function Dashboard() {
                 ))}
               </tbody>
             </table>
+          </div>
+        </>
+      )}
+
+      {/* REAL ESTATE TAB */}
+      {tab === 'realestate' && (
+        <>
+          {/* Buy Box */}
+          <div style={{ ...styles.card, borderTop: '4px solid #00d4aa', marginBottom: 24 }}>
+            <div style={styles.cardTitle}>🎯 Your Texas SFH Buy Box</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 16, marginTop: 12 }}>
+              {[
+                { label: 'Target Markets',   value: 'Central TX + DFW' },
+                { label: 'Price Range',       value: '$150K – $350K' },
+                { label: 'Strategy',          value: 'Hold + Flip' },
+                { label: 'Financing',         value: '20% Down Conv.' },
+                { label: 'Min Cash-on-Cash',  value: '8 – 10%' },
+              ].map(x => (
+                <div key={x.label} style={{ textAlign: 'center', background: 'rgba(0,212,170,0.06)', borderRadius: 8, padding: 12 }}>
+                  <div style={{ color: '#8892b0', fontSize: 11, marginBottom: 4 }}>{x.label}</div>
+                  <div style={{ color: '#00d4aa', fontWeight: 700, fontSize: 14 }}>{x.value}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* How to Analyze a Deal */}
+          <div style={{ ...styles.card, marginBottom: 24 }}>
+            <div style={styles.cardTitle}>💡 How to Analyze a Deal</div>
+            <div style={{ color: '#8892b0', fontSize: 13, lineHeight: 1.8 }}>
+              Send GordonGecko any property details via Telegram and get an instant pro forma:
+            </div>
+            <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: 8, padding: 16, marginTop: 12, fontFamily: 'monospace', fontSize: 12, color: '#00d4aa' }}>
+              “Analyze: 456 Main St, Bastrop TX — asking $240k, 3br/2ba, 1,800sqft, est rent $1,750/mo”
+            </div>
+            <div style={{ color: '#8892b0', fontSize: 12, marginTop: 8 }}>
+              You’ll get: Pro forma • Cash-on-cash return • Cap rate • 10-yr projection • AI verdict • Negotiation target
+            </div>
+          </div>
+
+          {/* Deal History */}
+          <div style={styles.card}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <div style={styles.cardTitle}>📁 Deal Analysis History</div>
+              <div style={{ fontSize: 12, color: '#8892b0' }}>Last 50 analyzed deals</div>
+            </div>
+            {!reData || !reData.dealHistory || reData.dealHistory.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: 48, color: '#8892b0' }}>
+                <div style={{ fontSize: 32, marginBottom: 12 }}>🏠</div>
+                <div>No deals analyzed yet.</div>
+                <div style={{ fontSize: 12, marginTop: 8 }}>Send a property address to GordonGecko on Telegram to run your first analysis.</div>
+              </div>
+            ) : (
+              <table style={styles.table}>
+                <thead>
+                  <tr>{['Date','Address','City','Price','Score','CoC%','Monthly CF','Verdict'].map(h => <th key={h} style={styles.th}>{h}</th>)}</tr>
+                </thead>
+                <tbody>
+                  {reData.dealHistory.map((d, i) => {
+                    const scoreColor = { A:'#00d4aa', B:'#00a8ff', C:'#ffa502', D:'#ff6b35', F:'#ff4757' }[d.score] || '#8892b0'
+                    const cfColor    = d.monthlyCF >= 0 ? '#00d4aa' : '#ff4757'
+                    return (
+                      <tr key={i}>
+                        <td style={{ ...styles.td, color: '#8892b0', fontSize: 12 }}>{new Date(d.analyzedAt).toLocaleDateString()}</td>
+                        <td style={{ ...styles.td, color: '#ccd6f6' }}>{d.address}</td>
+                        <td style={{ ...styles.td, color: '#8892b0' }}>{d.city}</td>
+                        <td style={styles.td}>${d.price?.toLocaleString()}</td>
+                        <td style={styles.td}><span style={{ background: scoreColor+'22', color: scoreColor, padding: '2px 8px', borderRadius: 4, fontWeight: 700, fontSize: 13 }}>{d.score}</span></td>
+                        <td style={{ ...styles.td, color: d.coc >= 8 ? '#00d4aa' : '#ff4757', fontWeight: 700 }}>{d.coc?.toFixed(1)}%</td>
+                        <td style={{ ...styles.td, color: cfColor, fontWeight: 700 }}>${d.monthlyCF?.toFixed(0)}/mo</td>
+                        <td style={{ ...styles.td, color: '#8892b0', fontSize: 11, maxWidth: 200 }}>{d.verdict}</td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            )}
+          </div>
+
+          {/* Key Metrics Explainer */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 16 }}>
+            <div style={{ ...styles.card, borderTop: '3px solid #00d4aa' }}>
+              <div style={styles.cardTitle}>📊 Key Metrics — What They Mean</div>
+              {[
+                { metric: 'Cash-on-Cash Return', desc: 'Annual cash flow ÷ cash invested. Target: 8-10%+', good: '≥ 8%', bad: '< 6%' },
+                { metric: 'Cap Rate',            desc: 'NOI ÷ property value. Market health indicator',  good: '≥ 6%', bad: '< 4%' },
+                { metric: '1% Rule',             desc: 'Monthly rent ≥ 1% of purchase price',          good: 'Passes',   bad: 'Fails' },
+                { metric: 'GRM',                 desc: 'Price ÷ annual rent. Lower = better deal',     good: '< 10x',   bad: '> 15x' },
+              ].map((m, i) => (
+                <div key={i} style={{ padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                  <div style={{ color: '#fff', fontWeight: 600, fontSize: 13 }}>{m.metric}</div>
+                  <div style={{ color: '#8892b0', fontSize: 12, marginTop: 2 }}>{m.desc}</div>
+                  <div style={{ display: 'flex', gap: 12, marginTop: 4 }}>
+                    <span style={{ color: '#00d4aa', fontSize: 11 }}>✅ {m.good}</span>
+                    <span style={{ color: '#ff4757', fontSize: 11 }}>❌ {m.bad}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div style={{ ...styles.card, borderTop: '3px solid #a855f7' }}>
+              <div style={styles.cardTitle}>💰 Texas Market Rent Comps (3BR/2BA SFH)</div>
+              {[
+                ['Austin',      '$2,200'], ['Georgetown',  '$1,900'], ['Round Rock',  '$1,800'],
+                ['Bastrop',     '$1,650'], ['Kyle/Buda',   '$1,750'], ['San Marcos',  '$1,600'],
+                ['McKinney',    '$2,000'], ['Frisco/Plano','$2,100'], ['Dallas',      '$1,800'],
+                ['Fort Worth',  '$1,700'], ['Garland',     '$1,600'], ['Arlington',   '$1,650'],
+              ].map(([city, rent]) => (
+                <div key={city} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid rgba(255,255,255,0.04)', fontSize: 13 }}>
+                  <span style={{ color: '#ccd6f6' }}>{city}</span>
+                  <span style={{ color: '#a855f7', fontWeight: 600 }}>{rent}/mo</span>
+                </div>
+              ))}
+            </div>
           </div>
         </>
       )}
